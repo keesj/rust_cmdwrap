@@ -1,0 +1,17 @@
+#!/bin/sh
+set -e
+me=$(basename "$0")
+mydir=$(dirname "$0")
+
+BINARIES="yosys nextpnr-ice40"
+for i in $BINARIES; do
+	#rm $i
+	if [ ! -e "${mydir}/$i" ]; then
+		echo "Create simlink for $i"
+		ln -s $me ${mydir}/$i
+	fi
+done
+docker run -it \
+	-v $(pwd)/:$(pwd)/ -w $(pwd) \
+	gcr.io/hdl-containers/impl/pnr \
+	$me "$@"

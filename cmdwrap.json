@@ -1,0 +1,16 @@
+{
+ "commands" : [
+    {
+      "name": "yosys",
+      "image": "gcr.io/hdl-containers/impl/pnr:latest",
+      "command": "yosys",
+      "docker_args":"-v {top}/:{top}/ -w {pwd}"
+    },
+    {
+      "name": "cmdwrap",
+      "image": "gcr.io/hdl-containers/impl/pnr:latest",
+      "command": "bash",
+      "docker_args":"-v {top}/:{top}/ -w {pwd}"
+    }
+  ]
+}
