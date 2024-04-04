@@ -1,3 +1,8 @@
+// Generic feedback
+// Use `cargo clippy -- -W clippy::pedantic -W clippy::nursery` to get more tips on your code
+// Use `///` if you want to document a function, struct, or struct member
+// Use a .gitignore to prevent checking in build artifacts
+
 use leon::Template;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -6,6 +11,7 @@ use std::fs;
 use std::path::Path;
 use std::process::Command;
 
+// Don't use static for const values, use const instead
 static DBNAME: &str = "cmdwrap.json";
 
 #[derive(Serialize, Deserialize)]
@@ -22,6 +28,7 @@ struct Cmd {
 }
 
 impl Settings {
+    // You can use `&self` instead of `self: &Settings`
     fn lookup_progam(self: &Settings, prog_name: &str) -> Option<&Cmd> {
         self.commands.iter().find(|entry| entry.name == prog_name)
     }
@@ -63,6 +70,7 @@ impl fmt::Display for DatabaseFindError {
 use std::path::PathBuf;
 
 fn find_database() -> Result<PathBuf, DatabaseFindError> {
+    // PathBuf is already an owned type, so the to_owned is useless
     let top = find_top().ok_or(DatabaseFindError)?.to_owned(); // `to_owned()` is used to avoid moving the path.
 
     let file_path = top.join(DBNAME);
@@ -74,6 +82,7 @@ fn find_database() -> Result<PathBuf, DatabaseFindError> {
 }
 
 // Reads the JSON database from disk and return Settings
+// Why does this return an Option? It panics if it can't find it, so the Option is useless
 fn read_database(path: &Path) -> Option<Settings> {
     let data = fs::read_to_string(path).expect("Unable to read database file");
     let settings: Settings = serde_json::from_str(&data).expect("Invalid json data");
@@ -101,6 +110,7 @@ fn main() {
     let db_path = find_database().expect("Can not find database");
     let settings = read_database(&db_path).expect("database reading problem");
 
+    // For more complicated arg parsing, clap is a very nice library
     let args = std::env::args().collect::<Vec<String>>();
     let progname = &args[0];
     // strip the potential path name from the exeutable name and convert to string
@@ -115,6 +125,8 @@ fn main() {
 
         let mut values = HashMap::new();
 
+        // You need to keep the _a around, as to_string_lossy returns a reference to the pathbuf
+        // You can either do to_string_lossy().into_owned() or you can just shadow the variable
         // Fix this section.
         let top_str_a = find_top().unwrap();
         let top_str = top_str_a.to_string_lossy();
