@@ -1,5 +1,6 @@
 use leon::Template;
 use serde::{Deserialize, Serialize};
+use serde_json::from_str;
 use std::collections::HashMap;
 use std::fmt;
 use std::fs;
@@ -25,11 +26,15 @@ impl Settings {
     fn lookup_progam(self: &Settings, prog_name: &str) -> Option<&Cmd> {
         self.commands.iter().find(|entry| entry.name == prog_name)
     }
-}
 
-impl Cmd {
-    fn hello() {
-        println!("Hello");
+    fn from_path(path: PathBuf) -> Option<Settings> {
+        let data = fs::read_to_string(path).expect("Unable to read database file");
+        from_str(&data).unwrap()
+    }
+
+    fn from_str(s: &str) -> std::option::Option<Settings> {
+        let setting: Settings = serde_json::from_str(s).expect("Problems");
+        Some(setting)
     }
 }
 
@@ -73,13 +78,6 @@ fn find_database() -> Result<PathBuf, DatabaseFindError> {
     }
 }
 
-// Reads the JSON database from disk and return Settings
-fn read_database(path: &Path) -> Option<Settings> {
-    let data = fs::read_to_string(path).expect("Unable to read database file");
-    let settings: Settings = serde_json::from_str(&data).expect("Invalid json data");
-    Some(settings)
-}
-
 // Starts a Docker container and runs a command inside it.
 fn run_command_in_container(image: &str, docker_args: Vec<&str>, cmd: &str, args: Vec<&str>) {
     //println!("[{:?}]", docker_args);
@@ -99,7 +97,7 @@ fn run_command_in_container(image: &str, docker_args: Vec<&str>, cmd: &str, args
 fn main() {
     // Read the JSON database from disk.
     let db_path = find_database().expect("Can not find database");
-    let settings = read_database(&db_path).expect("database reading problem");
+    let settings = Settings::from_path(db_path).expect("database reading problem");
 
     let args = std::env::args().collect::<Vec<String>>();
     let progname = &args[0];
