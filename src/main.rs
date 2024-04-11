@@ -4,7 +4,6 @@
 
 use leon::Template;
 use serde::{Deserialize, Serialize};
-use serde_json::from_str;
 use std::collections::HashMap;
 use std::fmt;
 use std::fs;
@@ -33,7 +32,7 @@ impl Settings {
 
     fn from_path(path: PathBuf) -> Option<Settings> {
         let data = fs::read_to_string(path).expect("Unable to read database file");
-        from_str(&data).unwrap()
+        Settings::from_str(&data)
     }
 
     fn from_str(s: &str) -> Option<Settings> {
