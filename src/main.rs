@@ -1,7 +1,6 @@
 // Generic feedback
 // Use `cargo clippy -- -W clippy::pedantic -W clippy::nursery` to get more tips on your code
 // Use `///` if you want to document a function, struct, or struct member
-// Use a .gitignore to prevent checking in build artifacts
 
 use leon::Template;
 use serde::{Deserialize, Serialize};
@@ -12,8 +11,7 @@ use std::fs;
 use std::path::Path;
 use std::process::Command;
 
-// Don't use static for const values, use const instead
-static DBNAME: &str = "cmdwrap.json";
+const DBNAME: &str = "cmdwrap.json";
 
 #[derive(Serialize, Deserialize)]
 struct Settings {
@@ -29,8 +27,7 @@ struct Cmd {
 }
 
 impl Settings {
-    // You can use `&self` instead of `self: &Settings`
-    fn lookup_progam(self: &Settings, prog_name: &str) -> Option<&Cmd> {
+    fn lookup_progam(&self, prog_name: &str) -> Option<&Cmd> {
         self.commands.iter().find(|entry| entry.name == prog_name)
     }
 
@@ -75,8 +72,7 @@ impl fmt::Display for DatabaseFindError {
 use std::path::PathBuf;
 
 fn find_database() -> Result<PathBuf, DatabaseFindError> {
-    // PathBuf is already an owned type, so the to_owned is useless
-    let top = find_top().ok_or(DatabaseFindError)?.to_owned(); // `to_owned()` is used to avoid moving the path.
+    let top = find_top().ok_or(DatabaseFindError)?;
 
     let file_path = top.join(DBNAME);
     if file_path.exists() {
@@ -86,7 +82,7 @@ fn find_database() -> Result<PathBuf, DatabaseFindError> {
     }
 }
 
-// Starts a Docker container and runs a command inside it.
+/// Starts a Docker container and runs a command inside it.
 fn run_command_in_container(image: &str, docker_args: Vec<&str>, cmd: &str, args: Vec<&str>) {
     //println!("[{:?}]", docker_args);
     let mut child = Command::new("docker")
