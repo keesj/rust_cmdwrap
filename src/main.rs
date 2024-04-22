@@ -8,6 +8,7 @@ use std::collections::HashMap;
 use std::fmt;
 use std::fs;
 use std::path::Path;
+use std::path::PathBuf;
 use std::process::Command;
 
 const DBNAME: &str = "cmdwrap.json";
@@ -68,8 +69,6 @@ impl fmt::Display for DatabaseFindError {
     }
 }
 
-use std::path::PathBuf;
-
 fn find_database() -> Result<PathBuf, DatabaseFindError> {
     let top = find_top().ok_or(DatabaseFindError)?;
 
@@ -81,7 +80,7 @@ fn find_database() -> Result<PathBuf, DatabaseFindError> {
     }
 }
 
-/// Starts a Docker container and runs a command inside it.
+/// Starts a Docker container and run a command inside it.
 fn run_command_in_container(image: &str, docker_args: Vec<&str>, cmd: &str, args: Vec<&str>) {
     //println!("[{:?}]", docker_args);
     let mut child = Command::new("docker")
@@ -120,10 +119,12 @@ fn main() {
         // You need to keep the _a around, as to_string_lossy returns a reference to the pathbuf
         // You can either do to_string_lossy().into_owned() or you can just shadow the variable
         // Fix this section.
-        let top_str_a = find_top().unwrap();
-        let top_str = top_str_a.to_string_lossy();
-        let pwd_str_a = std::env::current_dir().unwrap();
-        let pwd_str = pwd_str_a.to_string_lossy();
+        //let top_str_a = find_top().unwrap();
+        let top_str = find_top().unwrap().to_string_lossy().into_owned();
+        let pwd_str = std::env::current_dir()
+            .unwrap()
+            .to_string_lossy()
+            .into_owned();
         values.insert("top", &top_str);
         values.insert("pwd", &pwd_str);
 
