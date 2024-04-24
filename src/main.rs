@@ -31,12 +31,12 @@ impl Settings {
         self.commands.iter().find(|entry| entry.name == prog_name)
     }
 
-    fn from_path(path: PathBuf) -> Option<Settings> {
+    fn from_path(path: PathBuf) -> Option<Self> {
         let data = fs::read_to_string(path).expect("Unable to read database file");
         Settings::from_str(&data)
     }
 
-    fn from_str(s: &str) -> Option<Settings> {
+    fn from_str(s: &str) -> Option<Self> {
         let setting: Settings = serde_json::from_str(s).expect("Problems");
         Some(setting)
     }
@@ -65,7 +65,7 @@ struct DatabaseFindError;
 
 impl fmt::Display for DatabaseFindError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Failed to find datbase")
+        write!(f, "Failed to find database")
     }
 }
 
@@ -116,10 +116,6 @@ fn main() {
 
         let mut values = HashMap::new();
 
-        // You need to keep the _a around, as to_string_lossy returns a reference to the pathbuf
-        // You can either do to_string_lossy().into_owned() or you can just shadow the variable
-        // Fix this section.
-        //let top_str_a = find_top().unwrap();
         let top_str = find_top().unwrap().to_string_lossy().into_owned();
         let pwd_str = std::env::current_dir()
             .unwrap()
