@@ -29,4 +29,21 @@ jobs:
           name: Binary
           path: |
             ${{ steps.compile.outputs.BUILT_ARCHIVE }}
-            ${{ steps.compile.outputs.BUILT_CHECKSUM }}    
+            ${{ steps.compile.outputs.BUILT_CHECKSUM }}
+  Release:
+    name: Release
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        toolchain:
+          - stable
+    steps:
+      - uses: actions/checkout@v3
+      - run: rustup update ${{ matrix.toolchain }} && rustup default ${{ matrix.toolchain }}
+      - run: cargo build -r --verbose
+      - name: Upload artifact
+      - uses: actions/upload-artifact@v4
+        with:
+          name: my-artifact
+          path: target/release/cmdwrap
+  
