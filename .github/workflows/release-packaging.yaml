@@ -1,6 +1,4 @@
-# https://doc.rust-lang.org/cargo/guide/continuous-integration.html
-name: Cargo Build & Test
-
+name: Testing
 on:
   push:
   pull_request:
@@ -20,7 +18,23 @@ jobs:
       - uses: actions/checkout@v3
       - run: cargo build -r
       - run: cargo test -r
-      - uses: actions/upload-artifact@v4
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-         name: artifacts
-         path: target/release/*
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+      - name: Upload Release Asset
+        id: upload-release-asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} 
+          asset_path: target/release/cmdwrap
+          asset_name: cmdwrap
+          asset_content_type: application/octet-stream
