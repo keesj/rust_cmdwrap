@@ -1,0 +1,9 @@
+{
+  "commands": [
+    {
+      "name": "yosys",
+      "image": "gcr.io/hdl-containers/impl/pnr:latest",
+      "docker_args": "-v {top}/:{top}/ -w {pwd}"
+    }
+  ]
+}
